@@ -36,9 +36,15 @@ class ZephirRunner
      */
     public function run($zephir, $phpcode, $silent)
     {
+        $extensionPath = $this->zephirExtensionBuilder->build($zephir, $silent);
+        
+        if (is_file($extensionPath) === false) {
+            throw new \InvalidArgumentException(sprintf('Extension should be in "%s" but the file does not exist', $extensionPath));
+        }
+
         return $this->phpRunner->runJob(
             $phpcode, 
-            array('extension=' . $this->zephirExtensionBuilder->build($zephir, $silent))
+            array('extension=' . $extensionPath)
         );
     }
 }
