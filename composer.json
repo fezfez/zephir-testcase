@@ -28,5 +28,8 @@
         "psr-0" : {
             "ZephirTestCase" : "src/"
         }
-    }
+    },
+    "bin" : [
+        "bin/zephir-testcase"
+    ]
 }
