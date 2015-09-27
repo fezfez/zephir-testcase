@@ -74,8 +74,6 @@ class ZephirExtensionBuilder
             throw new \Exception(sprintf('Error on %s', $e->getMessage()));
         }
 
-        $this->fileWorker->rmdirRecursive($dto->getBaseDir());
-
-        return ini_get('extension_dir') . '/' . $dto->getExtensionName() .'.so';
+        return 'ext/modules/' . $dto->getExtensionName() .'.so';
     }
 }
