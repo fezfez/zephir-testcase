@@ -92,7 +92,7 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
             $result = new \PHPUnit_Framework_TestResult;
         }
 
-        $php      = new \ZephirTestCase\ZephirRunner();
+        $php      = \ZephirTestCase\ZephirRunnerFactory::getInstance();
         $skip     = false;
         $time     = 0;
         $settings = $this->settings;
