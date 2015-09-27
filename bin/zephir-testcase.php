@@ -28,5 +28,12 @@ if (!empty($argv[2]) && $argv[2] === '--silent') {
 }
 
 $testSuite = new \ZephirTestCase\ZeptTestSuite(getcwd() . '/' . $argv[1], $silent);
+$result    = \PHPUnit_TextUI_TestRunner::run($testSuite);
 
-\PHPUnit_TextUI_TestRunner::run($testSuite);
+if (isset($result) && $result->wasSuccessful()) {
+    $ret = PHPUnit_TextUI_TestRunner::SUCCESS_EXIT;
+} elseif (!isset($result) || $result->errorCount() > 0) {
+    $ret = PHPUnit_TextUI_TestRunner::EXCEPTION_EXIT;
+}
+
+exit($ret);
