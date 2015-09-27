@@ -93,7 +93,6 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
         }
 
         $php      = \ZephirTestCase\ZephirRunnerFactory::getInstance();
-        $skip     = false;
         $time     = 0;
         $settings = $this->settings;
 
@@ -103,58 +102,37 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
             $settings = array_merge($settings, $this->parseIniSection($sections['INI']));
         }
 
-        if (isset($sections['SKIPIF'])) {
-            $jobResult = $php->runJob($sections['SKIPIF'], $settings);
 
-            if (!strncasecmp('skip', ltrim($jobResult['stdout']), 4)) {
-                if (preg_match('/^\s*skip\s*(.+)\s*/i', $jobResult['stdout'], $message)) {
-                    $message = substr($message[1], 2);
-                } else {
-                    $message = '';
-                }
+        \PHP_Timer::start();
+        $jobResult = $php->run($zepĥir, $phpcode, $this->silent);
+        $time      = \PHP_Timer::stop();
 
-                $result->addFailure($this, new \PHPUnit_Framework_SkippedTestError($message), 0);
-
-                $skip = true;
-            }
+        if (isset($sections['EXPECT'])) {
+            $assertion = 'assertEquals';
+            $expected  = $sections['EXPECT'];
+        } else {
+            $assertion = 'assertStringMatchesFormat';
+            $expected  = $sections['EXPECTF'];
         }
 
-        if (!$skip) {
-            \PHP_Timer::start();
-            $jobResult = $php->run($zepĥir, $phpcode, $this->silent);
-            $time      = \PHP_Timer::stop();
+        $output   = preg_replace('/\r\n/', "\n", trim($jobResult['stdout']));
+        $expected = preg_replace('/\r\n/', "\n", trim($expected));
 
-            if (isset($sections['EXPECT'])) {
-                $assertion = 'assertEquals';
-                $expected  = $sections['EXPECT'];
-            } else {
-                $assertion = 'assertStringMatchesFormat';
-                $expected  = $sections['EXPECTF'];
-            }
-
-            $output   = preg_replace('/\r\n/', "\n", trim($jobResult['stdout']));
-            $expected = preg_replace('/\r\n/', "\n", trim($expected));
-
-            try {
-                \PHPUnit_Framework_Assert::$assertion($expected, $output);
-            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
-                $result->addFailure($this, $e, $time);
-            } catch (Throwable $t) {
-                $result->addError($this, $t, $time);
-            } catch (Exception $e) {
-                $result->addError($this, $e, $time);
-            }
-
-            try {
-                if (!empty($jobResult['stderr'])) {
-                    throw new \PHPUnit_Framework_AssertionFailedError("stderr is not empty\n" . $jobResult['stderr']);
-                }
-            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
-                $result->addFailure($this, $e, $time);
-            }
+        try {
+            \PHPUnit_Framework_Assert::$assertion($expected, $output);
+            $reflectionClass = new ReflectionClass($result);
+            
+            $reflectionClass->getProperty('staticProperty')->setValue('foo');
+        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+            $result->addFailure($this, $e, $time);
+        } catch (Throwable $t) {
+            $result->addError($this, $t, $time);
+        } catch (Exception $e) {
+            $result->addError($this, $e, $time);
         }
 
         $result->endTest($this, $time);
+        $result->flushListeners();
 
         return $result;
     }
@@ -200,12 +178,14 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
             $sections[$section] .= $line;
         }
 
-        if (!isset($sections['FILE']) ||
-            (!isset($sections['EXPECT']) && !isset($sections['EXPECTF']))) {
-                throw new \PHPUnit_Framework_Exception('Invalid PHPT file');
-            }
+        if (!isset($sections['FILE']) || (!isset($sections['EXPECT']) && !isset($sections['EXPECTF']))) {
+            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
+        }
+        if (!isset($sections['USAGE'])) {
+            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
+        }
 
-            return $sections;
+        return $sections;
     }
 
     /**

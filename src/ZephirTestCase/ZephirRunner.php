@@ -44,7 +44,7 @@ class ZephirRunner
 
         return $this->phpRunner->runJob(
             $phpcode, 
-            array('extension=' . $extensionPath)
+            array('extension=' . $extensionPath, 'error_reporting=-1', 'display_errors=1')
         );
     }
 }
