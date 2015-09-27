@@ -56,9 +56,7 @@ class ZephirExtensionBuilder
         $dto = $this->zephirClassInfo->getZephirCodeInfo($zephir);
         $this->fileWorker->writeZephirFile($dto, $zephir);
 
-        if (!defined('ZEPHIRPATH')) {
-            define('ZEPHIRPATH', realpath(__DIR__.'/../../vendor/phalcon/zephir').'/');
-        }
+        $this->defineZephirHome();
 
         try {
             $config = new Config();
@@ -75,5 +73,18 @@ class ZephirExtensionBuilder
         }
 
         return 'ext/modules/' . $dto->getExtensionName() .'.so';
+    }
+    
+    private function defineZephirHome()
+    {
+        if (!defined('ZEPHIRPATH')) {
+            if (is_dir(__DIR__.'/../../vendor/phalcon/zephir')) {
+                define('ZEPHIRPATH', realpath(__DIR__.'/../../vendor/phalcon/zephir').'/');
+            } elseif (is_dir(__DIR__.'/../../../../phalcon/zephir')) {
+                define('ZEPHIRPATH', realpath(__DIR__.'/../../../../phalcon/zephir').'/');
+            } else {
+                throw new \Exception('Zephir home not found');
+            }
+        }
     }
 }
