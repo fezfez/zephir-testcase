@@ -8,12 +8,12 @@ namespace ZephirTestCase;
 class ZeptTestSuite extends \PHPUnit_Framework_TestSuite
 {
     /**
-     * Constructs a new TestSuite for .phpt test cases.
+     * Constructs a new TestSuite for .zept test cases.
      *
      * @param  string                      $directory
      * @throws PHPUnit_Framework_Exception
      */
-    public function __construct($directory)
+    public function __construct($directory, $silent)
     {
         if (is_string($directory) && is_dir($directory)) {
             $this->setName($directory);
@@ -23,7 +23,7 @@ class ZeptTestSuite extends \PHPUnit_Framework_TestSuite
 
             foreach ($files as $file) {
                 $this->addTest(
-                    new \ZephirTestCase\ZeptTestCase($file)
+                    new \ZephirTestCase\ZeptTestCase($file, $silent)
                 );
             }
         } else {

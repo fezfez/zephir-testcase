@@ -10,6 +10,11 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
     private $filename;
 
     /**
+     * @var boolean
+     */
+    private $silent;
+
+    /**
      * @var array
      */
     private $settings = array(
@@ -42,7 +47,7 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
      * @param  string                      $filename
      * @throws \PHPUnit_Framework_Exception
     */
-    public function __construct($filename)
+    public function __construct($filename, $silent)
     {
         if (!is_string($filename)) {
             throw \PHPUnit_Util_InvalidArgumentHelper::factory(1, 'string');
@@ -58,6 +63,7 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
         }
 
         $this->filename = $filename;
+        $this->silent = $silent;
     }
 
     /**
@@ -115,7 +121,7 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
 
         if (!$skip) {
             \PHP_Timer::start();
-            $jobResult = $php->run($zepĥir, $phpcode);
+            $jobResult = $php->run($zepĥir, $phpcode, $this->silent);
             $time      = \PHP_Timer::stop();
 
             if (isset($sections['EXPECT'])) {

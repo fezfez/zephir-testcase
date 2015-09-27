@@ -15,10 +15,10 @@ class ZephirRunner
      *
      * @throws \Exception
      */
-    public function run($zephir, $phpcode)
+    public function run($zephir, $phpcode, $silent)
     {
         $phpRunnder = \PHPUnit_Util_PHP::factory();
-        return $phpRunnder->runJob($phpcode, array($this->buildZephirExtension($zephir)));
+        return $phpRunnder->runJob($phpcode, array($this->buildZephirExtension($zephir, $silent)));
     }
     
     private function getBackend()
@@ -42,7 +42,7 @@ class ZephirRunner
         );
     }
     
-    private function buildZephirExtension($zephir)
+    private function buildZephirExtension($zephir, $silent)
     {
         $infos = $this->getZephirCodeInfo($zephir);
         $namespace = strtolower($infos['baseNamespace']);
@@ -59,7 +59,7 @@ class ZephirRunner
         try {
             $config = new Config();
             $config->set('namespace', strtolower($namespace));
-            $config->set('silent', true);
+            $config->set('silent', $silent);
         
             if (is_dir('ext')) {
                 $cleanCommand->execute($config, new ZephirLogger($config));

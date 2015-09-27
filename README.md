@@ -49,6 +49,12 @@ string(6) "unkown"
 
 ### To run zephir-testcase
 
+This command will run .zept with the compilation output
 ```
 ./vendor/bin/zephir-testcase mytestdirectory
+```
+
+If you dont want to see the compilation add --silent option
+```
+./vendor/bin/zephir-testcase mytestdirectory --silent
 ```

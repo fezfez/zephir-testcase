@@ -21,6 +21,12 @@ if (empty($argv[1])) {
     );
 }
 
-$testSuite = new \ZephirTestCase\ZeptTestSuite(getcwd() . '/' . $argv[1]);
+$silent = false;
+
+if (!empty($argv[2]) && $argv[2] === '--silent') {
+    $silent = true;
+}
+
+$testSuite = new \ZephirTestCase\ZeptTestSuite(getcwd() . '/' . $argv[1], $silent);
 
 \PHPUnit_TextUI_TestRunner::run($testSuite);
