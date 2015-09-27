@@ -32,7 +32,7 @@ $result    = \PHPUnit_TextUI_TestRunner::run($testSuite);
 
 if (isset($result) && $result->wasSuccessful()) {
     $ret = PHPUnit_TextUI_TestRunner::SUCCESS_EXIT;
-} elseif (!isset($result) || $result->errorCount() > 0) {
+} elseif (!isset($result) || $result->errorCount() > 0 || $result->failureCount() > 0) {
     $ret = PHPUnit_TextUI_TestRunner::EXCEPTION_EXIT;
 }
 

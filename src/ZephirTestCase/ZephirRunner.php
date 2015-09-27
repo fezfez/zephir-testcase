@@ -33,6 +33,8 @@ class ZephirRunner
      * @param string $zephirCode
      *
      * @throws \Exception
+     * 
+     * @return array
      */
     public function run($zephir, $phpcode, $silent)
     {
@@ -42,9 +44,16 @@ class ZephirRunner
             throw new \InvalidArgumentException(sprintf('Extension should be in "%s" but the file does not exist', $extensionPath));
         }
 
-        return $this->phpRunner->runJob(
-            $phpcode, 
-            array('extension=' . $extensionPath, 'error_reporting=-1', 'display_errors=1')
-        );
+        return $this->runPhp($phpcode, array('extension=' . $extensionPath, 'error_reporting=-1', 'display_errors=1'));
+    }
+
+    /**
+     * @param string $phpcode
+     * @param array $settings
+     * @return array
+     */
+    public function runPhp($phpcode, array $settings)
+    {
+        return $this->phpRunner->runJob($phpcode, $settings);
     }
 }

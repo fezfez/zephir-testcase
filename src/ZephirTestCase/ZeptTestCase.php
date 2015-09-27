@@ -94,6 +94,7 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
 
         $php      = \ZephirTestCase\ZephirRunnerFactory::getInstance();
         $time     = 0;
+        $skip     = false;
         $settings = $this->settings;
 
         $result->startTest($this);
@@ -101,38 +102,52 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
         if (isset($sections['INI'])) {
             $settings = array_merge($settings, $this->parseIniSection($sections['INI']));
         }
-
-
-        \PHP_Timer::start();
-        $jobResult = $php->run($zepĥir, $phpcode, $this->silent);
-        $time      = \PHP_Timer::stop();
-
-        if (isset($sections['EXPECT'])) {
-            $assertion = 'assertEquals';
-            $expected  = $sections['EXPECT'];
-        } else {
-            $assertion = 'assertStringMatchesFormat';
-            $expected  = $sections['EXPECTF'];
+        
+        if (isset($sections['SKIPIF'])) {
+            $jobResult = $php->runPhp($sections['SKIPIF'], $settings);
+            if (!strncasecmp('skip', ltrim($jobResult['stdout']), 4)) {
+                if (preg_match('/^\s*skip\s*(.+)\s*/i', $jobResult['stdout'], $message)) {
+                    $message = substr($message[1], 2);
+                } else {
+                    $message = '';
+                }
+                $result->addFailure($this, new \PHPUnit_Framework_SkippedTestError($message), 0);
+                $skip = true;
+            }
         }
 
-        $output   = preg_replace('/\r\n/', "\n", trim($jobResult['stdout']));
-        $expected = preg_replace('/\r\n/', "\n", trim($expected));
-
-        try {
-            \PHPUnit_Framework_Assert::$assertion($expected, $output);
-            $reflectionClass = new ReflectionClass($result);
-            
-            $reflectionClass->getProperty('staticProperty')->setValue('foo');
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
-            $result->addFailure($this, $e, $time);
-        } catch (Throwable $t) {
-            $result->addError($this, $t, $time);
-        } catch (Exception $e) {
-            $result->addError($this, $e, $time);
+        if(!$skip) {
+            \PHP_Timer::start();
+            $jobResult = $php->run($zepĥir, $phpcode, $this->silent);
+            $time      = \PHP_Timer::stop();
+    
+            if (isset($sections['EXPECT'])) {
+                $assertion = 'assertEquals';
+                $expected  = $sections['EXPECT'];
+            } else {
+                $assertion = 'assertStringMatchesFormat';
+                $expected  = $sections['EXPECTF'];
+            }
+    
+            $output   = preg_replace('/\r\n/', "\n", trim($jobResult['stdout']));
+            $expected = preg_replace('/\r\n/', "\n", trim($expected));
+    
+            try {
+                \PHPUnit_Framework_Assert::$assertion($expected, $output);
+                $reflectionClass = new ReflectionClass($result);
+                
+                $reflectionClass->getProperty('staticProperty')->setValue('foo');
+            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+                $result->addFailure($this, $e, $time);
+            } catch (Throwable $t) {
+                $result->addError($this, $t, $time);
+            } catch (Exception $e) {
+                $result->addError($this, $e, $time);
+            }
+    
+            $result->endTest($this, $time);
+            $result->flushListeners();
         }
-
-        $result->endTest($this, $time);
-        $result->flushListeners();
 
         return $result;
     }
