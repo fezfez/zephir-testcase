@@ -67,21 +67,26 @@ class ZephirExtensionBuilder
                 $this->commandFullClean->execute($config, new ZephirLogger($config));
             }
             $this->commandBuild->execute($config, new ZephirLogger($config));
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->fileWorker->rmdirRecursive($dto->getBaseDir());
             throw new \Exception(sprintf('Error on %s', $e->getMessage()));
         }
 
         return 'ext/modules/' . $dto->getExtensionName() .'.so';
     }
-    
+
     private function defineZephirHome()
     {
         if (!defined('ZEPHIRPATH')) {
+            // as both vendor
             if (is_dir(__DIR__.'/../../vendor/phalcon/zephir')) {
                 define('ZEPHIRPATH', realpath(__DIR__.'/../../vendor/phalcon/zephir').'/');
+            // as unit test
             } elseif (is_dir(__DIR__.'/../../../../phalcon/zephir')) {
                 define('ZEPHIRPATH', realpath(__DIR__.'/../../../../phalcon/zephir').'/');
+            // as zephir
+            } elseif (is_file(__DIR__.'/../../../../../bin/zephir')) {
+                define('ZEPHIRPATH', realpath(__DIR__.'/../../../../../').'/');
             } else {
                 throw new \Exception('Zephir home not found');
             }

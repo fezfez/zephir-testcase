@@ -118,30 +118,30 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
 
         if(!$skip) {
             \PHP_Timer::start();
-            $jobResult = $php->run($zepĥir, $phpcode, $this->silent);
-            $time      = \PHP_Timer::stop();
-    
-            if (isset($sections['EXPECT'])) {
-                $assertion = 'assertEquals';
-                $expected  = $sections['EXPECT'];
-            } else {
-                $assertion = 'assertStringMatchesFormat';
-                $expected  = $sections['EXPECTF'];
-            }
-    
-            $output   = preg_replace('/\r\n/', "\n", trim($jobResult['stdout']));
-            $expected = preg_replace('/\r\n/', "\n", trim($expected));
-    
             try {
+                $jobResult = $php->run($zepĥir, $phpcode, $this->silent);
+                $time      = \PHP_Timer::stop();
+        
+                if (isset($sections['EXPECT'])) {
+                    $assertion = 'assertEquals';
+                    $expected  = $sections['EXPECT'];
+                } else {
+                    $assertion = 'assertStringMatchesFormat';
+                    $expected  = $sections['EXPECTF'];
+                }
+        
+                $output   = preg_replace('/\r\n/', "\n", trim($jobResult['stdout']));
+                $expected = preg_replace('/\r\n/', "\n", trim($expected));
+
                 \PHPUnit_Framework_Assert::$assertion($expected, $output);
                 $reflectionClass = new ReflectionClass($result);
                 
                 $reflectionClass->getProperty('staticProperty')->setValue('foo');
             } catch (\PHPUnit_Framework_AssertionFailedError $e) {
                 $result->addFailure($this, $e, $time);
-            } catch (Throwable $t) {
+            } catch (\Throwable $t) {
                 $result->addError($this, $t, $time);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $result->addError($this, $e, $time);
             }
     
