@@ -62,12 +62,17 @@ class ZephirClassInfoDto
      */
     public function getBaseNamespace()
     {
-        return strpos($this->namespace, '\\') ? strstr($this->namespace, '\\') : $this->namespace;
+        return strpos($this->namespace, '\\') ? strstr($this->namespace, '\\', true) : $this->namespace;
     }
     
     public function getBaseDir()
     {
         return strtolower($this->getBaseNamespace());
+    }
+    
+    public function getDir()
+    {
+        return strtolower(str_replace('\\', '/', $this->namespace) . '/');
     }
     
     public function getExtensionName()

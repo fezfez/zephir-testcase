@@ -20,7 +20,9 @@ class FileWorker
     public function writeZephirFile(ZephirClassInfoDto $dto, $code)
     {
         $this->rmdirRecursive($dto->getBaseDir());
-        mkdir($dto->getBaseDir());
+        if (@mkdir(getcwd() . '/' . $dto->getDir(), 0777, true) === false) {
+            throw new \Exception('could not create dir ' . getcwd() . '/' . $dto->getDir());
+        }
         file_put_contents($dto->getFilePath() . '.zep', $code);
     }
 }
