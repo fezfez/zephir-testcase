@@ -8,7 +8,7 @@ use Zephir\Logger as ZephirLogger;
 use Zephir\Commands\CommandFullClean;
 use Zephir\BaseBackend;
 
-class ZephirRunner
+class CodeRunner
 {
     /**
      * @var ZephirExtensionBuilder
