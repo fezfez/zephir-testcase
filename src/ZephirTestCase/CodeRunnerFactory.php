@@ -8,14 +8,14 @@ use Zephir\Logger as ZephirLogger;
 use Zephir\Commands\CommandFullClean;
 use Zephir\BaseBackend;
 
-class ZephirRunnerFactory
+class CodeRunnerFactory
 {
     /**
-     * @return \ZephirTestCase\ZephirRunner
+     * @return \ZephirTestCase\CodeRunner
      */
     public static function getInstance()
     {
-        return new ZephirRunner(
+        return new CodeRunner(
             ZephirExtensionBuilderFactory::getInstance(),
             \PHPUnit_Util_PHP::factory()
         );

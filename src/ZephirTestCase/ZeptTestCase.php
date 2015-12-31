@@ -15,6 +15,16 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
     private $silent;
 
     /**
+     * @var CodeRunner
+     */
+    private $codeRunner;
+
+    /**
+     * @var ZeptHydrator
+     */
+    private $zeptHydrator;
+
+    /**
      * @var array
      */
     private $settings = array(
@@ -62,8 +72,10 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
             );
         }
 
-        $this->filename = $filename;
-        $this->silent = $silent;
+        $this->filename     = $filename;
+        $this->silent       = $silent;
+        $this->codeRunner   = CodeRunnerFactory::getInstance();
+        $this->zeptHydrator = ZeptHydratorFactory::getInstance();
     }
 
     /**
@@ -88,76 +100,36 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
             $result = new \PHPUnit_Framework_TestResult();
         }
 
-        $sections = $this->parse();
-        $zepĥir   = $this->render($sections['FILE']);
-        $phpcode  = $this->render($sections['USAGE']);
-        $php      = ZephirRunnerFactory::getInstance();
-        $settings = $this->settings;
+        $zept = $this->zeptHydrator->zeptToDto($this->filename, $settings);
 
         $result->startTest($this);
 
-        $settings = array_merge($settings, $this->parseIniSection($sections));
-
-        try {
-            $skip = $this->isSkip($php, $sections, $settings);
-        } catch (\InvalidArgumentException $e) {
-            $result->addFailure($this, new \PHPUnit_Framework_SkippedTestError($e->getMessage()), 0);
-            $skip = true;
-        }
-
-        if($skip === false) {
-            $result = $this->doRun($result, $php, $sections, $zepĥir, $phpcode);
+        if ($zept->isSkip()) {
+            $result->addFailure($this, new \PHPUnit_Framework_SkippedTestError($zept->getSkipMessage()), 0);
+        } else {
+            $result = $this->doRun($result, $zept);
         }
 
         return $result;
     }
 
     /**
-     * @param ZephirRunner $zephirRunner
-     * @param array $sections
-     * @param array $settings
-     * @throws \InvalidArgumentException
-     * @return boolean
-     */
-    private function isSkip(ZephirRunner $zephirRunner, array $sections, array $settings)
-    {
-        if (isset($sections['SKIPIF'])) {
-            $jobResult = $zephirRunner->runPhp($sections['SKIPIF'], $settings);
-            if (!strncasecmp('skip', ltrim($jobResult['stdout']), 4)) {
-                $message = '';
-
-                if (preg_match('/^\s*skip\s*(.+)\s*/i', $jobResult['stdout'], $message)) {
-                    $message = substr($message[1], 2);
-                }
-
-                throw new \InvalidArgumentException($message);
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @param \PHPUnit_Framework_TestResult $result
-     * @param ZephirRunner $zephirRunner
-     * @param array $sections
-     * @param string $zepĥir
-     * @param string $phpcode
+     * @param Zept $zept
      * @return \PHPUnit_Framework_TestResult
      */
-    private function doRun(\PHPUnit_Framework_TestResult $result, ZephirRunner $zephirRunner, array $sections, $zepĥir, $phpcode)
+    private function doRun(\PHPUnit_Framework_TestResult $result, Zept $zept)
     {
         $time = 0;
         \PHP_Timer::start();
 
         try {
-            $jobResult                  = $zephirRunner->run($zepĥir, $phpcode, $this->silent);
-            $time                       = \PHP_Timer::stop();
-            list($assertion, $expected) = $this->parseAssertion($sections);
-
+            $jobResult = $this->codeRunner->run($zept->getZephirCode(), $zept->getPhpCode(), $this->silent);
+            $time      = \PHP_Timer::stop();
+            $assertion = $zept->getAssertion();
 
             \PHPUnit_Framework_Assert::$assertion(
-                $this->cleanString($expected),
+                $this->cleanString($zept->getExpected()),
                 $this->cleanString($jobResult['stdout'])
             );
         } catch (\Exception $exception) {
@@ -170,25 +142,6 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
         $result->flushListeners();
 
         return $result;
-    }
-
-    /**
-     * @param array $sections
-     * @return string[]
-     */
-    private function parseAssertion(array $sections)
-    {
-        if (isset($sections['EXPECT'])) {
-            return array(
-                'assertEquals',
-                $sections['EXPECT'],
-            );
-        }
-
-        return array(
-            'assertStringMatchesFormat',
-            $sections['EXPECTF']
-        );
     }
 
     /**
@@ -218,70 +171,5 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
     public function toString()
     {
         return $this->filename;
-    }
-
-    /**
-     * @return array
-     * @throws \PHPUnit_Framework_Exception
-     */
-    private function parse()
-    {
-        $sections = array();
-        $section  = '';
-
-        foreach (file($this->filename) as $line) {
-            if (preg_match('/^--([_A-Z]+)--/', $line, $result)) {
-                $section            = $result[1];
-                $sections[$section] = '';
-                continue;
-            } elseif (empty($section)) {
-                throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
-            }
-
-            $sections[$section] .= $line;
-        }
-
-        if (!isset($sections['FILE']) || (!isset($sections['EXPECT']) && !isset($sections['EXPECTF']))) {
-            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
-        }
-        if (!isset($sections['USAGE'])) {
-            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
-        }
-
-        return $sections;
-    }
-
-    /**
-     * @param  string $code
-     * @return string
-     */
-    private function render($code)
-    {
-        return str_replace(
-            array(
-                '__DIR__',
-                '__FILE__'
-            ),
-            array(
-                "'" . dirname($this->filename) . "'",
-                "'" . $this->filename . "'"
-            ),
-            $code
-        );
-    }
-
-    /**
-     * Parse --INI-- section key value pairs and return as array.
-     *
-     * @param string
-     * @return array
-     */
-    private function parseIniSection(array $settings)
-    {
-        if (isset($sections['INI'])) {
-            return preg_split('/\n|\r/', $sections['INI'], -1, PREG_SPLIT_NO_EMPTY);
-        }
-
-        return array();
     }
 }
