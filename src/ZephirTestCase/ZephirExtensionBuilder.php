@@ -102,9 +102,9 @@ class ZephirExtensionBuilder
             try {
                 $zephirHome = $this->arrayFoundValidExpression(
                     array(
-                        __DIR__.'/../../vendor/phalcon/zephir', // as both vendor
-                        __DIR__.'/../../../../phalcon/zephir', // as unit test
-                        __DIR__.'/../../../../../bin/zephir' // as zephir
+                        __DIR__.'/../../vendor/phalcon/zephir/', // as both vendor
+                        __DIR__.'/../../../../phalcon/zephir/', // as unit test
+                        __DIR__.'/../../../../../bin/zephir/' // as zephir
                     ),
                     function ($value) {
                         return is_dir($value);
