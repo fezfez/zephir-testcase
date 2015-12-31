@@ -138,6 +138,6 @@ class Zept
      */
     public function isSkip()
     {
-        return $this->skipMessage === null;
+        return $this->skipMessage !== null;
     }
 }
