@@ -12,10 +12,6 @@ class ZephirClassInfoDto
      * @var string
      */
     private $namespace;
-    /**
-     * @var string
-     */
-    private $filePath;
 
     /**
      * @param string $value
@@ -24,7 +20,7 @@ class ZephirClassInfoDto
     {
         $this->className = $value;
     }
-    
+
     /**
      * @param string $value
      */
@@ -32,7 +28,7 @@ class ZephirClassInfoDto
     {
         $this->namespace = $value;
     }
-    
+
     /**
      * @return string
      */
@@ -40,7 +36,7 @@ class ZephirClassInfoDto
     {
         return $this->className;
     }
-    
+
     /**
      * @return string
      */
@@ -48,7 +44,7 @@ class ZephirClassInfoDto
     {
         return $this->namespace;
     }
-    
+
     /**
      * @return string
      */
@@ -56,7 +52,7 @@ class ZephirClassInfoDto
     {
         return strtolower(str_replace('\\', '/', $this->namespace) . '/' . $this->className);
     }
-    
+
     /**
      * @return string
      */
@@ -64,17 +60,26 @@ class ZephirClassInfoDto
     {
         return strpos($this->namespace, '\\') ? strstr($this->namespace, '\\', true) : $this->namespace;
     }
-    
+
+    /**
+     * @return string
+     */
     public function getBaseDir()
     {
         return strtolower($this->getBaseNamespace());
     }
-    
+
+    /**
+     * @return string
+     */
     public function getDir()
     {
         return strtolower(str_replace('\\', '/', $this->namespace) . '/');
     }
-    
+
+    /**
+     * @return string
+     */
     public function getExtensionName()
     {
         return $this->getBaseDir();

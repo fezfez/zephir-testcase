@@ -20,8 +20,10 @@ class ZephirRunner
     private $phpRunner;
 
     /**
+     * Construct.
+     *
      * @param ZephirExtensionBuilder $zephirExtensionBuilder
-     * @param \PHPUnit_Util_PHP $phpRunner
+     * @param \PHPUnit_Util_PHP      $phpRunner
      */
     public function __construct(ZephirExtensionBuilder $zephirExtensionBuilder, \PHPUnit_Util_PHP $phpRunner)
     {
@@ -30,16 +32,15 @@ class ZephirRunner
     }
 
     /**
-     * @param string $zephirCode
-     *
-     * @throws \Exception
-     * 
-     * @return array
+     * @param string $zephir
+     * @param string $phpcode
+     * @param bool   $silent
+     * @throws \InvalidArgumentException
      */
     public function run($zephir, $phpcode, $silent)
     {
         $extensionPath = $this->zephirExtensionBuilder->build($zephir, $silent);
-        
+
         if (is_file($extensionPath) === false) {
             throw new \InvalidArgumentException(sprintf('Extension should be in "%s" but the file does not exist', $extensionPath));
         }

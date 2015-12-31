@@ -75,6 +75,10 @@ class ZephirExtensionBuilder
         return 'ext/modules/' . $dto->getExtensionName() .'.so';
     }
 
+    /**
+     * @throws \Exception
+     * @return void
+     */
     private function defineZephirHome()
     {
         if (!defined('ZEPHIRPATH')) {

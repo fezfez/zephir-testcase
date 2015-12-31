@@ -4,6 +4,10 @@ namespace ZephirTestCase;
 
 class FileWorker
 {
+    /**
+     * @param string $dir
+     * @return void
+     */
     public function rmdirRecursive($dir)
     {
         if (is_dir($dir) === false) {
@@ -17,6 +21,12 @@ class FileWorker
         rmdir($dir);
     }
 
+    /**
+     * @param ZephirClassInfoDto $dto
+     * @param string $code
+     * @throws \Exception
+     * @return void
+     */
     public function writeZephirFile(ZephirClassInfoDto $dto, $code)
     {
         $this->rmdirRecursive($dto->getBaseDir());

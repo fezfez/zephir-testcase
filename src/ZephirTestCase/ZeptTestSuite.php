@@ -18,7 +18,7 @@ class ZeptTestSuite extends \PHPUnit_Framework_TestSuite
         if (is_string($directory) && is_dir($directory)) {
             $this->setName($directory);
 
-            $facade = new \File_Iterator_Facade;
+            $facade = new \File_Iterator_Facade();
             $files  = $facade->getFilesAsArray($directory, '.zept');
 
             foreach ($files as $file) {

@@ -89,7 +89,7 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
         $phpcode  = $this->render($sections['USAGE']);
 
         if ($result === null) {
-            $result = new \PHPUnit_Framework_TestResult;
+            $result = new \PHPUnit_Framework_TestResult();
         }
 
         $php      = \ZephirTestCase\ZephirRunnerFactory::getInstance();
@@ -102,7 +102,7 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
         if (isset($sections['INI'])) {
             $settings = array_merge($settings, $this->parseIniSection($sections['INI']));
         }
-        
+
         if (isset($sections['SKIPIF'])) {
             $jobResult = $php->runPhp($sections['SKIPIF'], $settings);
             if (!strncasecmp('skip', ltrim($jobResult['stdout']), 4)) {
@@ -121,7 +121,7 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
             try {
                 $jobResult = $php->run($zepĥir, $phpcode, $this->silent);
                 $time      = \PHP_Timer::stop();
-        
+
                 if (isset($sections['EXPECT'])) {
                     $assertion = 'assertEquals';
                     $expected  = $sections['EXPECT'];
@@ -129,13 +129,13 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
                     $assertion = 'assertStringMatchesFormat';
                     $expected  = $sections['EXPECTF'];
                 }
-        
+
                 $output   = preg_replace('/\r\n/', "\n", trim($jobResult['stdout']));
                 $expected = preg_replace('/\r\n/', "\n", trim($expected));
 
                 \PHPUnit_Framework_Assert::$assertion($expected, $output);
                 $reflectionClass = new ReflectionClass($result);
-                
+
                 $reflectionClass->getProperty('staticProperty')->setValue('foo');
             } catch (\PHPUnit_Framework_AssertionFailedError $e) {
                 $result->addFailure($this, $e, $time);
@@ -144,7 +144,7 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
             } catch (\Exception $e) {
                 $result->addError($this, $e, $time);
             }
-    
+
             $result->endTest($this, $time);
             $result->flushListeners();
         }
