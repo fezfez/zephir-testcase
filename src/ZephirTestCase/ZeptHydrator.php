@@ -24,7 +24,15 @@ class ZeptHydrator
     public function zeptToDto($fileName, array $defaultIni = array())
     {
         $sections = $this->parseSection($fileName);
-        $file     = new Zept($defaultIni);
+
+        if (!isset($sections['FILE']) || (!isset($sections['EXPECT']) && !isset($sections['EXPECTF']))) {
+            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
+        }
+        if (!isset($sections['USAGE'])) {
+            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
+        }
+
+        $file = new Zept($defaultIni);
 
         $file->addIni($this->parseIniSection($sections));
         $file = $this->parseAssertion($file, $sections);
@@ -97,13 +105,6 @@ class ZeptHydrator
             }
 
             $sections[$section] .= $line;
-        }
-
-        if (!isset($sections['FILE']) || (!isset($sections['EXPECT']) && !isset($sections['EXPECTF']))) {
-            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
-        }
-        if (!isset($sections['USAGE'])) {
-            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
         }
 
         return $sections;
