@@ -92,26 +92,17 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
         $zepĥir   = $this->render($sections['FILE']);
         $phpcode  = $this->render($sections['USAGE']);
         $php      = ZephirRunnerFactory::getInstance();
-        $skip     = false;
         $settings = $this->settings;
 
         $result->startTest($this);
 
-        if (isset($sections['INI'])) {
-            $settings = array_merge($settings, $this->parseIniSection($sections['INI']));
-        }
+        $settings = array_merge($settings, $this->parseIniSection($sections));
 
-        if (isset($sections['SKIPIF'])) {
-            $jobResult = $php->runPhp($sections['SKIPIF'], $settings);
-            if (!strncasecmp('skip', ltrim($jobResult['stdout']), 4)) {
-                if (preg_match('/^\s*skip\s*(.+)\s*/i', $jobResult['stdout'], $message)) {
-                    $message = substr($message[1], 2);
-                } else {
-                    $message = '';
-                }
-                $result->addFailure($this, new \PHPUnit_Framework_SkippedTestError($message), 0);
-                $skip = true;
-            }
+        try {
+            $skip = $this->isSkip($php, $sections, $settings);
+        } catch (\InvalidArgumentException $e) {
+            $result->addFailure($this, new \PHPUnit_Framework_SkippedTestError($e->getMessage()), 0);
+            $skip = true;
         }
 
         if($skip === false) {
@@ -119,6 +110,31 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
         }
 
         return $result;
+    }
+
+    /**
+     * @param ZephirRunner $zephirRunner
+     * @param array $sections
+     * @param array $settings
+     * @throws \InvalidArgumentException
+     * @return boolean
+     */
+    private function isSkip(ZephirRunner $zephirRunner, array $sections, array $settings)
+    {
+        if (isset($sections['SKIPIF'])) {
+            $jobResult = $zephirRunner->runPhp($sections['SKIPIF'], $settings);
+            if (!strncasecmp('skip', ltrim($jobResult['stdout']), 4)) {
+                $message = '';
+
+                if (preg_match('/^\s*skip\s*(.+)\s*/i', $jobResult['stdout'], $message)) {
+                    $message = substr($message[1], 2);
+                }
+
+                throw new \InvalidArgumentException($message);
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -132,39 +148,47 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
     private function doRun(\PHPUnit_Framework_TestResult $result, ZephirRunner $zephirRunner, array $sections, $zepĥir, $phpcode)
     {
         $time = 0;
-
         \PHP_Timer::start();
-        try {
-            $jobResult = $zephirRunner->run($zepĥir, $phpcode, $this->silent);
-            $time      = \PHP_Timer::stop();
 
-            if (isset($sections['EXPECT'])) {
-                $assertion = 'assertEquals';
-                $expected  = $sections['EXPECT'];
-            } else {
-                $assertion = 'assertStringMatchesFormat';
-                $expected  = $sections['EXPECTF'];
-            }
+        try {
+            $jobResult                  = $zephirRunner->run($zepĥir, $phpcode, $this->silent);
+            $time                       = \PHP_Timer::stop();
+            list($assertion, $expected) = $this->parseAssertion($sections);
+
 
             \PHPUnit_Framework_Assert::$assertion(
                 $this->cleanString($expected),
                 $this->cleanString($jobResult['stdout'])
             );
-            $reflectionClass = new \ReflectionClass($result);
-
-            $reflectionClass->getProperty('staticProperty')->setValue('foo');
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
-            $result->addFailure($this, $e, $time);
-        } catch (\Throwable $t) {
-            $result->addError($this, $t, $time);
-        } catch (\Exception $e) {
-            $result->addError($this, $e, $time);
+        } catch (\Exception $exception) {
+            $result->addError($this, $exception, $time);
+        } catch (\Throwable $throwable) {
+            $result->addError($this, $throwable, $time);
         }
 
         $result->endTest($this, $time);
         $result->flushListeners();
 
         return $result;
+    }
+
+    /**
+     * @param array $sections
+     * @return string[]
+     */
+    private function parseAssertion(array $sections)
+    {
+        if (isset($sections['EXPECT'])) {
+            return array(
+                'assertEquals',
+                $sections['EXPECT'],
+            );
+        }
+
+        return array(
+            'assertStringMatchesFormat',
+            $sections['EXPECTF']
+        );
     }
 
     /**
@@ -252,8 +276,12 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
      * @param string
      * @return array
      */
-    protected function parseIniSection($content)
+    private function parseIniSection(array $settings)
     {
-        return preg_split('/\n|\r/', $content, -1, PREG_SPLIT_NO_EMPTY);
+        if (isset($sections['INI'])) {
+            return preg_split('/\n|\r/', $sections['INI'], -1, PREG_SPLIT_NO_EMPTY);
+        }
+
+        return array();
     }
 }
