@@ -76,24 +76,45 @@ class ZephirExtensionBuilder
     }
 
     /**
+     * @param array $data
+     * @param callable $callback
+     * @throws \Exception
+     * @return mixed
+     */
+    private function arrayFoundValidExpression(array $data, callable $callback)
+    {
+        foreach ($data as $value) {
+            if ($callback($value) !== false) {
+                return $value;
+            }
+        }
+
+        throw new \Exception('No valid expression found');
+    }
+
+    /**
      * @throws \Exception
      * @return void
      */
     private function defineZephirHome()
     {
         if (!defined('ZEPHIRPATH')) {
-            // as both vendor
-            if (is_dir(__DIR__.'/../../vendor/phalcon/zephir')) {
-                define('ZEPHIRPATH', realpath(__DIR__.'/../../vendor/phalcon/zephir').'/');
-            // as unit test
-            } elseif (is_dir(__DIR__.'/../../../../phalcon/zephir')) {
-                define('ZEPHIRPATH', realpath(__DIR__.'/../../../../phalcon/zephir').'/');
-            // as zephir
-            } elseif (is_file(__DIR__.'/../../../../../bin/zephir')) {
-                define('ZEPHIRPATH', realpath(__DIR__.'/../../../../../').'/');
-            } else {
+            try {
+                $zephirHome = $this->arrayFoundValidExpression(
+                    array(
+                        __DIR__.'/../../vendor/phalcon/zephir', // as both vendor
+                        __DIR__.'/../../../../phalcon/zephir', // as unit test
+                        __DIR__.'/../../../../../bin/zephir' // as zephir
+                    ),
+                    function ($value) {
+                        return is_dir($value);
+                    }
+                );
+            } catch (\Exception $e) {
                 throw new \Exception('Zephir home not found');
             }
+
+            define('ZEPHIRPATH', $zephirHome);
         }
     }
 }

@@ -84,16 +84,14 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
      */
     public function run(\PHPUnit_Framework_TestResult $result = null)
     {
-        $sections = $this->parse();
-        $zepĥir   = $this->render($sections['FILE']);
-        $phpcode  = $this->render($sections['USAGE']);
-
         if ($result === null) {
             $result = new \PHPUnit_Framework_TestResult();
         }
 
-        $php      = \ZephirTestCase\ZephirRunnerFactory::getInstance();
-        $time     = 0;
+        $sections = $this->parse();
+        $zepĥir   = $this->render($sections['FILE']);
+        $phpcode  = $this->render($sections['USAGE']);
+        $php      = ZephirRunnerFactory::getInstance();
         $skip     = false;
         $settings = $this->settings;
 
@@ -116,40 +114,66 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
             }
         }
 
-        if(!$skip) {
-            \PHP_Timer::start();
-            try {
-                $jobResult = $php->run($zepĥir, $phpcode, $this->silent);
-                $time      = \PHP_Timer::stop();
-
-                if (isset($sections['EXPECT'])) {
-                    $assertion = 'assertEquals';
-                    $expected  = $sections['EXPECT'];
-                } else {
-                    $assertion = 'assertStringMatchesFormat';
-                    $expected  = $sections['EXPECTF'];
-                }
-
-                $output   = preg_replace('/\r\n/', "\n", trim($jobResult['stdout']));
-                $expected = preg_replace('/\r\n/', "\n", trim($expected));
-
-                \PHPUnit_Framework_Assert::$assertion($expected, $output);
-                $reflectionClass = new ReflectionClass($result);
-
-                $reflectionClass->getProperty('staticProperty')->setValue('foo');
-            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
-                $result->addFailure($this, $e, $time);
-            } catch (\Throwable $t) {
-                $result->addError($this, $t, $time);
-            } catch (\Exception $e) {
-                $result->addError($this, $e, $time);
-            }
-
-            $result->endTest($this, $time);
-            $result->flushListeners();
+        if($skip === false) {
+            $result = $this->doRun($result, $php, $sections, $zepĥir, $phpcode);
         }
 
         return $result;
+    }
+
+    /**
+     * @param \PHPUnit_Framework_TestResult $result
+     * @param ZephirRunner $zephirRunner
+     * @param array $sections
+     * @param string $zepĥir
+     * @param string $phpcode
+     * @return \PHPUnit_Framework_TestResult
+     */
+    private function doRun(\PHPUnit_Framework_TestResult $result, ZephirRunner $zephirRunner, array $sections, $zepĥir, $phpcode)
+    {
+        $time = 0;
+
+        \PHP_Timer::start();
+        try {
+            $jobResult = $zephirRunner->run($zepĥir, $phpcode, $this->silent);
+            $time      = \PHP_Timer::stop();
+
+            if (isset($sections['EXPECT'])) {
+                $assertion = 'assertEquals';
+                $expected  = $sections['EXPECT'];
+            } else {
+                $assertion = 'assertStringMatchesFormat';
+                $expected  = $sections['EXPECTF'];
+            }
+
+            \PHPUnit_Framework_Assert::$assertion(
+                $this->cleanString($expected),
+                $this->cleanString($jobResult['stdout'])
+            );
+            $reflectionClass = new \ReflectionClass($result);
+
+            $reflectionClass->getProperty('staticProperty')->setValue('foo');
+        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+            $result->addFailure($this, $e, $time);
+        } catch (\Throwable $t) {
+            $result->addError($this, $t, $time);
+        } catch (\Exception $e) {
+            $result->addError($this, $e, $time);
+        }
+
+        $result->endTest($this, $time);
+        $result->flushListeners();
+
+        return $result;
+    }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    private function cleanString($string)
+    {
+        return preg_replace('/\r\n/', "\n", trim($string));
     }
 
     /**
