@@ -17,7 +17,7 @@ install:
   - ./install-nosudo -c
   - cd ./../../../
 
-script: ./vendor/bin/phpunit
+script: ./vendor/bin/phpunit --coverage-clover coverage.clover
   
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
