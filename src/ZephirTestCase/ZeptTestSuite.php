@@ -35,7 +35,7 @@ class ZeptTestSuite extends \PHPUnit_Framework_TestSuite
                 );
             }
         } else {
-            throw PHPUnit_Util_InvalidArgumentHelper::factory(1, 'directory name');
+            throw \PHPUnit_Util_InvalidArgumentHelper::factory(1, 'directory name');
         }
     }
 }

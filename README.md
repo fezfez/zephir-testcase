@@ -1,7 +1,8 @@
 # Zephir test case (.zept)
 
 [![Build Status](https://travis-ci.org/fezfez/zephir-testcase.svg)](https://travis-ci.org/fezfez/zephir-testcase)
-
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/fezfez/zephir-testcase/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/fezfez/zephir-testcase/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/fezfez/zephir-testcase/badges/build.png?b=master)](https://scrutinizer-ci.com/g/fezfez/zephir-testcase/build-status/master)
 Can run your zephir tests like PHPTestcase (.phpt)
 
 ## Install

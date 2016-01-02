@@ -17,7 +17,7 @@ install:
   - ./install-nosudo -c
   - cd ./../../../
 
-script: ./bin/zephir-testcase tests
+script: ./vendor/bin/phpunit
   
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
