@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * This file is part of the Zephir testcase package.
+ *
+ * (c) Stéphane Demonchaux <demonchaux.stephane@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace ZephirTestCase;
 
 use Zephir\Commands\CommandBuild;
@@ -8,6 +15,9 @@ use Zephir\Logger as ZephirLogger;
 use Zephir\Commands\CommandFullClean;
 use Zephir\BaseBackend;
 
+/**
+ * Can build zephir extension
+ */
 class ZephirExtensionBuilder
 {
     /**
@@ -28,9 +38,11 @@ class ZephirExtensionBuilder
     private $commandFullClean;
 
     /**
-     * @param ZephirClassInfo $zephirClassInfo
-     * @param FileWorker $fileWorker
-     * @param CommandBuild $commandBuild
+     * Construct.
+     *
+     * @param ZephirClassInfo  $zephirClassInfo
+     * @param FileWorker       $fileWorker
+     * @param CommandBuild     $commandBuild
      * @param CommandFullClean $commandFullClean
      */
     public function __construct(
@@ -39,14 +51,16 @@ class ZephirExtensionBuilder
         CommandBuild $commandBuild,
         CommandFullClean $commandFullClean
     ) {
-        $this->zephirClassInfo = $zephirClassInfo;
-        $this->fileWorker = $fileWorker;
-        $this->commandBuild = $commandBuild;
+        $this->zephirClassInfo  = $zephirClassInfo;
+        $this->fileWorker       = $fileWorker;
+        $this->commandBuild     = $commandBuild;
         $this->commandFullClean = $commandFullClean;
     }
 
     /**
-     * @param string $zephir
+     * Build a zephir extension and return the extension path
+     *
+     * @param string  $zephir
      * @param boolean $silent
      * @throws \Exception
      * @return string
@@ -93,6 +107,8 @@ class ZephirExtensionBuilder
     }
 
     /**
+     * Define the zephir home
+     *
      * @throws \Exception
      * @return void
      */

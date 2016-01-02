@@ -1,7 +1,18 @@
 <?php
-
+/**
+ * This file is part of the Zephir testcase package.
+ *
+ * (c) Stéphane Demonchaux <demonchaux.stephane@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace ZephirTestCase;
 
+/**
+ * Convert ZephirTestCase file into dto
+ *
+ */
 class ZeptHydrator
 {
     /**
@@ -10,6 +21,8 @@ class ZeptHydrator
     private $codeRunner;
 
     /**
+     * Construct.
+     *
      * @param CodeRunner $codeRunner
      */
     public function __construct(CodeRunner $codeRunner)
@@ -18,12 +31,14 @@ class ZeptHydrator
     }
 
     /**
+     * Convert zept file into dto
+     *
      * @param string $fileName
      * @return \ZephirTestCase\Zept
      */
     public function zeptToDto($fileName, array $defaultIni = array())
     {
-        $sections = $this->parseSection($fileName);
+        $sections = $this->parse($fileName);
 
         if (!isset($sections['FILE']) || (!isset($sections['EXPECT']) && !isset($sections['EXPECTF']))) {
             throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
@@ -44,7 +59,12 @@ class ZeptHydrator
     }
 
     /**
-     * @param Zept $file
+     * Parse the skip section
+     * - if skip
+     * - run the code
+     * - return the skip reason
+     *
+     * @param Zept  $zept
      * @param array $sections
      * @return \ZephirTestCase\Zept
      */
@@ -55,8 +75,8 @@ class ZeptHydrator
             if (!strncasecmp('skip', ltrim($jobResult['stdout']), 4)) {
                 $message = '';
 
-                if (preg_match('/^\s*skip\s*(.+)\s*/i', $jobResult['stdout'], $message)) {
-                    $message = substr($message[1], 2);
+                if (preg_match('/^\s*skip\s*(.+)\s*/i', $jobResult['stdout'], $rawMessage)) {
+                    $message = substr($rawMessage[1], 2);
                 }
 
                 $zept->setSkipMessage($message);
@@ -67,7 +87,9 @@ class ZeptHydrator
     }
 
     /**
-     * @param Zept $zept
+     * Parse the assertion
+     *
+     * @param Zept  $zept
      * @param array $sections
      * @return \ZephirTestCase\Zept
      */
@@ -87,10 +109,12 @@ class ZeptHydrator
     }
 
     /**
+     * Parse file into section
+     *
      * @return array
      * @throws \PHPUnit_Framework_Exception
      */
-    private function parseSection($fileName)
+    private function parse($fileName)
     {
         $sections = array();
         $section  = '';
@@ -126,6 +150,8 @@ class ZeptHydrator
     }
 
     /**
+     * Replace magic const by filename
+     *
      * @param string $code
      * @param string $fileName
      * @return string

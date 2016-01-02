@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * This file is part of the Zephir testcase package.
+ *
+ * (c) Stéphane Demonchaux <demonchaux.stephane@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace ZephirTestCase;
 
 class FileWorker
@@ -14,7 +21,9 @@ class FileWorker
             return;
         }
 
-        foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST) as $path) {
+        $dirIterator = new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS);
+
+        foreach(new \RecursiveIteratorIterator($dirIterator, \RecursiveIteratorIterator::CHILD_FIRST) as $path) {
             $path->isDir() && !$path->isLink() ? rmdir($path->getPathname()) : unlink($path->getPathname());
         }
 

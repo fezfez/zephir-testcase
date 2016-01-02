@@ -1,10 +1,19 @@
 <?php
-
+/**
+ * This file is part of the Zephir testcase package.
+ *
+ * (c) Stéphane Demonchaux <demonchaux.stephane@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace ZephirTestCase;
 
 class ZephirClassInfo
 {
     /**
+     * Return the class name and the namespace of a zephir code
+     *
      * @param string $zephir
      * @return array
      */
@@ -18,6 +27,9 @@ class ZephirClassInfo
     }
 
     /**
+     * Run regex on string, run the the first element
+     * or throw exception with provided message
+     *
      * @param string $regex
      * @param string $errorMessage
      * @param string $zephir

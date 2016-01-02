@@ -1,7 +1,17 @@
 <?php
-
+/**
+ * This file is part of the Zephir testcase package.
+ *
+ * (c) Stéphane Demonchaux <demonchaux.stephane@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace ZephirTestCase;
 
+/**
+ * ZePhirTestcase runner
+ */
 class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDescribing
 {
     /**
@@ -114,8 +124,10 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
     }
 
     /**
+     * Run the test
+     *
      * @param \PHPUnit_Framework_TestResult $result
-     * @param Zept $zept
+     * @param Zept                          $zept
      * @return \PHPUnit_Framework_TestResult
      */
     private function doRun(\PHPUnit_Framework_TestResult $result, Zept $zept)
@@ -145,6 +157,8 @@ class ZeptTestCase implements \PHPUnit_Framework_Test, \PHPUnit_Framework_SelfDe
     }
 
     /**
+     * Replace windows line ending in unix style and trim
+     *
      * @param string $string
      * @return string
      */
