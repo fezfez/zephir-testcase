@@ -11,23 +11,28 @@ namespace ZephirTestCase;
 
 /**
  * Convert ZephirTestCase file into dto
- *
  */
 class ZeptHydrator
 {
     /**
-     * @var CodeRunner $codeRunner
+     * @var CodeRunner
      */
     private $codeRunner;
+    /**
+     * @var FileWorker
+     */
+    private $fileWorker;
 
     /**
      * Construct.
      *
      * @param CodeRunner $codeRunner
+     * @param FileWorker $fileWorker
      */
-    public function __construct(CodeRunner $codeRunner)
+    public function __construct(CodeRunner $codeRunner, FileWorker $fileWorker)
     {
         $this->codeRunner = $codeRunner;
+        $this->fileWorker = $fileWorker;
     }
 
     /**
@@ -40,10 +45,7 @@ class ZeptHydrator
     {
         $sections = $this->parse($fileName);
 
-        if (!isset($sections['FILE']) || (!isset($sections['EXPECT']) && !isset($sections['EXPECTF']))) {
-            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
-        }
-        if (!isset($sections['USAGE'])) {
+        if (!isset($sections['FILE']) || !isset($sections['USAGE']) || (!isset($sections['EXPECT']) && !isset($sections['EXPECTF']))) {
             throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
         }
 
@@ -119,7 +121,7 @@ class ZeptHydrator
         $sections = array();
         $section  = '';
 
-        foreach (file($fileName) as $line) {
+        foreach ($this->fileWorker->file($fileName) as $line) {
             if (preg_match('/^--([_A-Z]+)--/', $line, $result)) {
                 $section            = $result[1];
                 $sections[$section] = '';
@@ -128,7 +130,7 @@ class ZeptHydrator
                 throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
             }
 
-            $sections[$section] .= $line;
+            $sections[$section] .= ($section === 'INI') ? $line . "\n" : $line;
         }
 
         return $sections;

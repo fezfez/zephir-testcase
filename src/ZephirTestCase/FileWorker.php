@@ -12,6 +12,15 @@ namespace ZephirTestCase;
 class FileWorker
 {
     /**
+     * @param string $filename
+     * @return array
+     */
+    public function file($filename)
+    {
+        return file($filename);
+    }
+
+    /**
      * @param string $dir
      * @return void
      */

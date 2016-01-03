@@ -21,6 +21,6 @@ class ZeptHydratorFactory
      */
     public static function getInstance()
     {
-        return new ZeptHydrator(CodeRunnerFactory::getInstance());
+        return new ZeptHydrator(CodeRunnerFactory::getInstance(), new FileWorker());
     }
 }
