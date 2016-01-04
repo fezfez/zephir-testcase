@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/fezfez/zephir-testcase.svg)](https://travis-ci.org/fezfez/zephir-testcase)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/fezfez/zephir-testcase/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/fezfez/zephir-testcase/?branch=master)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/32db2091-313b-4cc7-a4e6-ca77aee9d478/mini.png)](https://insight.sensiolabs.com/projects/32db2091-313b-4cc7-a4e6-ca77aee9d478)
 [![Code Coverage](https://scrutinizer-ci.com/g/fezfez/zephir-testcase/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/fezfez/zephir-testcase/?branch=master)
 
 Can run your zephir tests like PHPTestcase (.phpt)
