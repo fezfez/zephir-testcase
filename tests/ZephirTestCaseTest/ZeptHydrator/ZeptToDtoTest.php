@@ -163,5 +163,6 @@ class ZeptToDtoTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($phpCode, $dto->getPhpCode());
         $this->assertEquals($skipAssert, $dto->getSkipMessage());
         $this->assertEquals($zephirCode, $dto->getZephirCode());
+        $this->assertEquals($skipAssert === null ? false : true, $dto->isSkip());
     }
 }

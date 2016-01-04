@@ -45,8 +45,11 @@ class ZeptHydrator
     {
         $sections = $this->parse($fileName);
 
-        if (!isset($sections['FILE']) || !isset($sections['USAGE']) || (!isset($sections['EXPECT']) && !isset($sections['EXPECTF']))) {
-            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file');
+        if (!isset($sections['EXPECT']) && !isset($sections['EXPECTF'])) {
+            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file, need a expectation (EXPECT or EXPECTF) section');
+        }
+        if (!isset($sections['FILE']) || !isset($sections['USAGE'])) {
+            throw new \PHPUnit_Framework_Exception('Invalid ZEPT file, need FILE and USAGE section');
         }
 
         $file = new Zept($defaultIni);
@@ -145,7 +148,7 @@ class ZeptHydrator
     private function parseIniSection(array $sections)
     {
         if (isset($sections['INI'])) {
-            return preg_split('/\n|\r/', $sections['INI'], -1, PREG_SPLIT_NO_EMPTY);
+            return preg_split('/\n|\r/', $sections['INI'], null, PREG_SPLIT_NO_EMPTY);
         }
 
         return array();

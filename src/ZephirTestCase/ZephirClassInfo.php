@@ -38,9 +38,7 @@ class ZephirClassInfo
      */
     private function findAttribut($regex, $errorMessage, $zephir)
     {
-        preg_match($regex, $zephir, $info);
-
-        if (empty($info[1])) {
+        if (preg_match($regex, $zephir, $info) !== 1) {
             throw new ZephirClassInfoException($errorMessage);
         }
 
