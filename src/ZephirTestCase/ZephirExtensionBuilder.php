@@ -13,7 +13,6 @@ use Zephir\Commands\CommandBuild;
 use Zephir\Config;
 use Zephir\Logger as ZephirLogger;
 use Zephir\Commands\CommandFullClean;
-use Zephir\BaseBackend;
 
 /**
  * Can build zephir extension

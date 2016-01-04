@@ -1,35 +1,36 @@
 {
-	"name" : "fezfez/zephir-testcase",
-	"description" : ".zept test case with phpunit",
-	"type" : "library",
-	"authors" : [{
-			"name" : "Stéphane Demonchaux",
-			"email" : "demonchaux.stephane@gmail.com"
-		}
-	],
-	"keywords" : [
-		"zephir test",
-		"zept",
-		"zephir",
-		"phpunit"
-	],
-	"homepage" : "https://github.com/fezfez/zephir-testcase",
-	"require-dev" : {
-		"phpunit/phpunit" : "~4.8",
-		"phalcon/zephir" : "~0.8"
-	},
-	"support" : {
-		"source" : "https://github.com/fezfez/zephir-testcase",
-		"email" : "demonchaux.stephane@gmail.com",
-		"issues" : "https://github.com/fezfez/zephir-testcase/issues",
-		"wiki" : "https://github.com/fezfez/zephir-testcase/blob/master/README.md"
-	},
-	"autoload" : {
-		"psr-0" : {
-			"ZephirTestCase" : "src/"
-		}
-	},
-	"bin" : [
-		"bin/zephir-testcase"
-	]
+    "name" : "fezfez/zephir-testcase",
+    "description" : ".zept test case with phpunit",
+    "type" : "library",
+    "license": "MIT",
+    "authors" : [{
+            "name" : "Stéphane Demonchaux",
+            "email" : "demonchaux.stephane@gmail.com"
+        }
+    ],
+    "keywords" : [
+        "zephir test",
+        "zept",
+        "zephir",
+        "phpunit"
+    ],
+    "homepage" : "https://github.com/fezfez/zephir-testcase",
+    "require-dev" : {
+        "phpunit/phpunit" : "~4.8",
+        "phalcon/zephir" : "~0.8"
+    },
+    "support" : {
+        "source" : "https://github.com/fezfez/zephir-testcase",
+        "email" : "demonchaux.stephane@gmail.com",
+        "issues" : "https://github.com/fezfez/zephir-testcase/issues",
+        "wiki" : "https://github.com/fezfez/zephir-testcase/blob/master/README.md"
+    },
+    "autoload" : {
+        "psr-0" : {
+            "ZephirTestCase" : "src/"
+        }
+    },
+    "bin" : [
+        "bin/zephir-testcase"
+    ]
 }
